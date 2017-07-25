@@ -92,7 +92,10 @@ class NDIWaveController:
             msgtype = header[1]
         except IndexError:
             raise RuntimeError('Could not unpack message header. Not enough data.')
-# TODO: check msgsize against the size of data
+        try:
+            assert(len(data) == msgsize)
+        except AssertionError:
+            raise RuntimeError('Could not unpack message packet. Wrong number of bytes.')
         return data[8:], msgsize, msgtype
 
     def start_rec(self, fname=None, dur=None, units=None):
