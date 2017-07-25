@@ -84,7 +84,16 @@ class NDIWaveController:
 # TODO: Figure out how server sends messages back to the client.
         buffer_size = buffer_size or self.buffer_size
         data = self.socket.recv(buffer_size)
-        return data
+        hdfmt = '>II'
+        s = struct.Struct(hdfmt)
+        try:
+            header = s.unpack(data[:8])
+            msgsize = header[0]
+            msgtype = header[1]
+        except IndexError:
+            raise RuntimeError('Could not unpack message header. Not enough data.')
+# TODO: check msgsize against the size of data
+        return data[8:], msgsize, msgtype
 
     def start_rec(self, fname=None, dur=None, units=None):
         '''Send a command to the NDIWave server to start recording.
